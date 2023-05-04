@@ -2,21 +2,22 @@ import java.awt._
 import javax.swing._
 import scala.io.StdIn
 import scala.language.postfixOps
+import scala.util.Try
 import scala.util.control.Breaks._
 
 object Main extends Exception {
   def main(args: Array[String]): Unit = {
     //decide which game
-    //val Game = home()
-    //    Game match {
-    //      case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-    //      case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-    //      case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-    //      case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
-    //      case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
-    //      case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
-    //    }
-    play(suduko_Drawer, suduko_Controller, initialize_board("suduko"))
+    val Game = home()
+        Game match {
+          case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+          case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+          case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+          case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
+          case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
+          case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
+        }
+    //play(suduko_Drawer, suduko_Controller, initialize_board("suduko"))
 
   }
 
@@ -82,13 +83,13 @@ object Main extends Exception {
     val result: Boolean = true
     var tuple = (board, result, turn)
     while (true) {
-      val input = StdIn.readLine("Enter your Input: ")
+      val input = StdIn.readLine("\u001b[33mEnter your Input: \u001b[0m")
       tuple = controller(input, tuple._1, tuple._3)
       if (tuple._2) {
         drawer(tuple._1)
       }
       else
-        println("\u001b[31mInvalid Input\u001b[0m")
+        println("\u001b[31mINVALID INPUT\u001b[0m")
 
     }
   }
@@ -304,16 +305,20 @@ object Main extends Exception {
   }
 
   def home(): String = {
-    println("Choose a game to play:\n1.Chess\n2.Checkers\n3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\nEnter your choice:")
-    val input = StdIn.readLine().toInt
+    println("\u001b[33mChoose a game to play:\u001b[0m\n1.Chess\n2.Checkers\n3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\n\u001b[33mEnter your choice:\u001b[0m")
+    val input =  Try(StdIn.readLine().toInt).toOption
     var result: String = ""
     input match {
-      case 1 => result = "chess"
-      case 2 => result = "checkers"
-      case 3 => result = "tic_tac_toe"
-      case 4 => result = "connect4"
-      case 5 => result = "suduko"
-      case 6 => result = "8queens"
+      case Some(1) => result = "chess"
+      case Some(2) => result = "checkers"
+      case Some(3) => result = "tic_tac_toe"
+      case Some(4) => result = "connect4"
+      case Some(5) => result = "suduko"
+      case Some(6) => result = "8queens"
+      case _ => {
+        println("\u001b[31mINVALID INPUT\u001b[0m")
+        home()
+      }
     }
     result
   }
