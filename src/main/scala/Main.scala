@@ -8,16 +8,16 @@ import scala.util.control.Breaks._
 object Main extends Exception {
   def main(args: Array[String]): Unit = {
     //decide which game
-//    val Game = home()
-//        Game match {
-//          case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-//          case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-//          case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-//          case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
-//          case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
-//          case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
-//        }
-    play(suduko_Drawer, suduko_Controller, initialize_board("suduko"))
+    val Game = home()
+    Game match {
+      case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
+      case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
+      case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
+    }
+
 
   }
 
@@ -82,6 +82,7 @@ object Main extends Exception {
     val turn: Boolean = true
     val result: Boolean = true
     var tuple = (board, result, turn)
+    drawer(tuple._1)
     while (true) {
       val input = StdIn.readLine("\u001b[33mEnter your Input: \u001b[0m")
       tuple = controller(input, tuple._1, tuple._3)
@@ -98,7 +99,7 @@ object Main extends Exception {
     val frame = new JFrame("Suduko")
     val panel = new JPanel(new GridLayout(9, 9))
     for (i <- 0 until 9; j <- 0 until 9) {
-      if (board(i)(j) == "-" || board(i)(j) == "0" ) {
+      if (board(i)(j) == "-" || board(i)(j) == "0") {
         val cell = new JLabel(s"${i},${j} ")
         cell.setPreferredSize(new Dimension(70, 70))
 
@@ -109,17 +110,17 @@ object Main extends Exception {
         cell.setHorizontalAlignment(SwingConstants.CENTER)
         cell.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK))
         if (i % 3 == 0 && j % 3 == 0) {
-          cell.setBorder(BorderFactory.createMatteBorder(8, 8, 1, 1, Color.BLACK))
+          cell.setBorder(BorderFactory.createMatteBorder(10, 10, 1, 1, Color.BLACK))
         }
         else if (i % 3 == 0) {
           cell.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(8, 1, 1, 1, Color.BLACK),
+            BorderFactory.createMatteBorder(10, 1, 1, 1, Color.BLACK),
             cell.getBorder
           ))
         }
         else if (j % 3 == 0) {
           cell.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(1, 8, 1, 1, Color.BLACK),
+            BorderFactory.createMatteBorder(1, 10, 1, 1, Color.BLACK),
             cell.getBorder
           ))
         }
@@ -135,17 +136,17 @@ object Main extends Exception {
         cell.setBackground(Color.YELLOW)
         cell.setHorizontalAlignment(SwingConstants.CENTER)
         if (i % 3 == 0 && j % 3 == 0) {
-          cell.setBorder(BorderFactory.createMatteBorder(8, 8, 1, 1, Color.BLACK))
+          cell.setBorder(BorderFactory.createMatteBorder(10, 10, 1, 1, Color.BLACK))
         }
         else if (i % 3 == 0) {
           cell.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(8, 1, 1, 1, Color.BLACK),
+            BorderFactory.createMatteBorder(10, 1, 1, 1, Color.BLACK),
             cell.getBorder
           ))
         }
         else if (j % 3 == 0) {
           cell.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(1, 8, 1, 1, Color.BLACK),
+            BorderFactory.createMatteBorder(1, 10, 1, 1, Color.BLACK),
             cell.getBorder
           ))
         }
@@ -160,22 +161,14 @@ object Main extends Exception {
     frame.setVisible(true)
   }
 
-
   def suduko_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     val inputArray = input.split(" ")
-    val row = inputArray(0).toInt
-    val col = inputArray(1).toInt
-    val value = inputArray(2).toInt
-    if (row < 0 || row > 8 || col < 0 || col > 8  || value < 0 || value > 9)
-      return (board, false, false)
-    else {
-      if(value == 0){
-        board(row)(col) = "-"
-      }
-      else{
-        board(row)(col) = value.toString
-      }
+    val (row, col, value) = inputArray.map(_.toInt) match {
+      case Array(row, col, value) if row >= 0 && row <= 8 && col >= 0 && col <= 8 && value >= 0 && value <= 9
+      => (row, col, value)
+      case _ => return (board, false, false)
     }
+    board(row)(col) = if (value == 0) "-" else value.toString
     (board, true, false)
   }
 
@@ -218,10 +211,11 @@ object Main extends Exception {
     frame.setLayout(new BorderLayout())
     val panel = new JPanel(new GridLayout(6, 7))
     for (i <- 0 until 6; j <- 0 until 7) {
-      val button = new JButton()
+      val button = new JLabel()
+      button.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLACK))
       button.setOpaque(true)
       board(i)(j) match {
-        case "0" => button.setBackground(Color.RED)
+        case "R" => button.setBackground(Color.RED)
         case "Y" => button.setBackground(Color.YELLOW)
         case "W" => button.setBackground(Color.WHITE)
       }
@@ -250,7 +244,6 @@ object Main extends Exception {
           }
         }
       }
-
       new_player = !new_player
     }
     (board, result, new_player)
@@ -311,7 +304,7 @@ object Main extends Exception {
   def home(): String = {
     println("\u001b[33mChoose a game to play:\u001b[0m\n1.Chess\n2.Checkers\n" +
       "3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\n\u001b[33mEnter your choice:\u001b[0m")
-    val input =  Try(StdIn.readLine().toInt).toOption
+    val input = Try(StdIn.readLine().toInt).toOption
     var result: String = ""
     input match {
       case Some(1) => result = "chess"
