@@ -1,6 +1,5 @@
-
-import java.awt.{BorderLayout, Color, Dimension, GridLayout}
-import javax.swing.{JButton, JFrame, JPanel}
+import java.awt._
+import javax.swing._
 import scala.io.StdIn
 import scala.language.postfixOps
 import scala.util.control.Breaks._
@@ -8,15 +7,16 @@ import scala.util.control.Breaks._
 object Main extends Exception {
   def main(args: Array[String]): Unit = {
     //decide which game
-    val Game = home()
-    Game match {
-      case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-      case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-      case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-      case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
-      case "sudoko" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-      case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
-    }
+    //val Game = home()
+    //    Game match {
+    //      case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+    //      case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+    //      case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+    //      case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
+    //      case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
+    //      case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
+    //    }
+    play(suduko_Drawer, suduko_Controller, initialize_board("suduko"))
 
   }
 
@@ -50,7 +50,7 @@ object Main extends Exception {
         Array("W", "W", "W", "W", "W", "W", "W")
       )
         myboard
-      case "sudoko" => val myboard = Array(
+      case "suduko" => val myboard = Array(
         Array("-", "-", "7", "4", "9", "1", "6", "-", "5"),
         Array("2", "-", "-", "-", "6", "-", "3", "-", "9"),
         Array("-", "-", "-", "-", "-", "7", "-", "1", "-"),
@@ -80,40 +80,98 @@ object Main extends Exception {
   def play(drawer: Array[Array[String]] => Unit, controller: (String, Array[Array[String]], Boolean) => (Array[Array[String]], Boolean, Boolean), board: Array[Array[String]]): Unit = {
     val turn: Boolean = true
     val result: Boolean = true
-    var tupel = (board, result, turn)
+    var tuple = (board, result, turn)
     while (true) {
       val input = StdIn.readLine("Enter input: ")
-      tupel = controller(input, tupel._1, tupel._3)
-      if (tupel._2) {
-        drawer(tupel._1)
+      tuple = controller(input, tuple._1, tuple._3)
+      if (tuple._2) {
+        drawer(tuple._1)
       }
       else
-        println("invalid input")
+        println("\u001b[31mInvalid Input\u001b[0m")
 
     }
   }
 
   def suduko_Drawer(board: Array[Array[String]]): Unit = {
     val frame = new JFrame("Suduko")
-    val panel = new JPanel(new GridLayout(3, 3))
+    val panel = new JPanel(new GridLayout(9, 9))
     for (i <- 0 until 9; j <- 0 until 9) {
-      val button = new JButton(board(i)(j))
-      button.setPreferredSize(new Dimension(180, 180))
-      button.setFont(button.getFont().deriveFont(64f))
-      button.setEnabled(false)
-      panel.add(button)
-    }
+      if (board(i)(j) == "-") {
+        val cell = new JLabel(s"${i},${j} ")
+        cell.setPreferredSize(new Dimension(70, 70))
 
+        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 18))
+        cell.setForeground(Color.GRAY)
+        cell.setBackground(Color.YELLOW)
+        cell.setOpaque(true)
+        cell.setHorizontalAlignment(SwingConstants.CENTER)
+        cell.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK))
+        if (i % 3 == 0 && j % 3 == 0) {
+          cell.setBorder(BorderFactory.createMatteBorder(8, 8, 1, 1, Color.BLACK))
+        }
+        else if (i % 3 == 0) {
+          cell.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(8, 1, 1, 1, Color.BLACK),
+            cell.getBorder
+          ))
+        }
+        else if (j % 3 == 0) {
+          cell.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(1, 8, 1, 1, Color.BLACK),
+            cell.getBorder
+          ))
+        }
+        else {
+          cell.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK))
+        }
+        panel.add(cell)
+      }
+      else {
+        val cell = new JLabel(board(i)(j))
+        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 24))
+        cell.setForeground(Color.BLACK)
+        cell.setBackground(Color.YELLOW)
+        cell.setHorizontalAlignment(SwingConstants.CENTER)
+        if (i % 3 == 0 && j % 3 == 0) {
+          cell.setBorder(BorderFactory.createMatteBorder(8, 8, 1, 1, Color.BLACK))
+        }
+        else if (i % 3 == 0) {
+          cell.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(8, 1, 1, 1, Color.BLACK),
+            cell.getBorder
+          ))
+        }
+        else if (j % 3 == 0) {
+          cell.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(1, 8, 1, 1, Color.BLACK),
+            cell.getBorder
+          ))
+        }
+        else {
+          cell.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK))
+        }
+        panel.add(cell)
+      }
+    }
     frame.add(panel, BorderLayout.CENTER)
     frame.pack()
     frame.setVisible(true)
-
   }
 
   def suduko_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
+    val inputArray = input.split(" ")
+    val row = inputArray(0).toInt
+    val col = inputArray(1).toInt
+    val value = inputArray(2).toInt
+    var result = true
+    var new_player = player
+    if (row < 0 || row > 8 || col < 0 || col > 8 || board(row)(col) != "-" || value < 0 || value > 9)
+      result = false
+    else {
 
-
-    (board, true, true)
+    }
+    (board, result, true)
   }
 
   def tic_tac_toe_Drawer(board: Array[Array[String]]): Unit = {
@@ -136,7 +194,7 @@ object Main extends Exception {
   }
 
   def tic_tac_toe_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
-    val inputArray = input.split(",")
+    val inputArray = input.split(" ")
     val row = inputArray(0).toInt
     val col = inputArray(1).toInt
     var result = true
@@ -246,7 +304,7 @@ object Main extends Exception {
   }
 
   def home(): String = {
-    println("Choose a game to play:\n1.chess\n2.checkers\n3.tic_tac_toe\n4.connect4\n5.sudoko\n6.8queens\nEnter your choice:")
+    println("Choose a game to play:\n1.chess\n2.checkers\n3.tic_tac_toe\n4.connect4\n5.suduko\n6.8queens\nEnter your choice:")
     val input = StdIn.readLine().toInt
     var result: String = ""
     input match {
@@ -254,7 +312,7 @@ object Main extends Exception {
       case 2 => result = "checkers"
       case 3 => result = "tic_tac_toe"
       case 4 => result = "connect4"
-      case 5 => result = "sudoko"
+      case 5 => result = "suduko"
       case 6 => result = "8queens"
     }
     result
