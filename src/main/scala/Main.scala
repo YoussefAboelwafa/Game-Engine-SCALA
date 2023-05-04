@@ -8,16 +8,16 @@ import scala.util.control.Breaks._
 object Main extends Exception {
   def main(args: Array[String]): Unit = {
     //decide which game
-    val Game = home()
-        Game match {
-          case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-          case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-          case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
-          case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
-          case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
-          case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
-        }
-    //play(suduko_Drawer, suduko_Controller, initialize_board("suduko"))
+//    val Game = home()
+//        Game match {
+//          case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+//          case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+//          case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+//          case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
+//          case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
+//          case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
+//        }
+    play(suduko_Drawer, suduko_Controller, initialize_board("suduko"))
 
   }
 
@@ -98,7 +98,7 @@ object Main extends Exception {
     val frame = new JFrame("Suduko")
     val panel = new JPanel(new GridLayout(9, 9))
     for (i <- 0 until 9; j <- 0 until 9) {
-      if (board(i)(j) == "-") {
+      if (board(i)(j) == "-" || board(i)(j) == "0" ) {
         val cell = new JLabel(s"${i},${j} ")
         cell.setPreferredSize(new Dimension(70, 70))
 
@@ -160,19 +160,23 @@ object Main extends Exception {
     frame.setVisible(true)
   }
 
+
   def suduko_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     val inputArray = input.split(" ")
     val row = inputArray(0).toInt
     val col = inputArray(1).toInt
     val value = inputArray(2).toInt
-    var result = true
-    var new_player = player
-    if (row < 0 || row > 8 || col < 0 || col > 8 || board(row)(col) != "-" || value < 0 || value > 9)
-      result = false
+    if (row < 0 || row > 8 || col < 0 || col > 8  || value < 0 || value > 9)
+      return (board, false, false)
     else {
-
+      if(value == 0){
+        board(row)(col) = "-"
+      }
+      else{
+        board(row)(col) = value.toString
+      }
     }
-    (board, result, true)
+    (board, true, false)
   }
 
   def tic_tac_toe_Drawer(board: Array[Array[String]]): Unit = {
@@ -305,7 +309,8 @@ object Main extends Exception {
   }
 
   def home(): String = {
-    println("\u001b[33mChoose a game to play:\u001b[0m\n1.Chess\n2.Checkers\n3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\n\u001b[33mEnter your choice:\u001b[0m")
+    println("\u001b[33mChoose a game to play:\u001b[0m\n1.Chess\n2.Checkers\n" +
+      "3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\n\u001b[33mEnter your choice:\u001b[0m")
     val input =  Try(StdIn.readLine().toInt).toOption
     var result: String = ""
     input match {
