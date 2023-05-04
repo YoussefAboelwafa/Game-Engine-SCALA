@@ -82,7 +82,7 @@ object Main extends Exception {
     val result: Boolean = true
     var tuple = (board, result, turn)
     while (true) {
-      val input = StdIn.readLine("Enter input: ")
+      val input = StdIn.readLine("Enter your Input: ")
       tuple = controller(input, tuple._1, tuple._3)
       if (tuple._2) {
         drawer(tuple._1)
