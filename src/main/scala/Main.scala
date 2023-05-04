@@ -304,7 +304,7 @@ object Main extends Exception {
   }
 
   def home(): String = {
-    println("Choose a game to play:\n1.chess\n2.checkers\n3.tic_tac_toe\n4.connect4\n5.suduko\n6.8queens\nEnter your choice:")
+    println("Choose a game to play:\n1.Chess\n2.Checkers\n3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\nEnter your choice:")
     val input = StdIn.readLine().toInt
     var result: String = ""
     input match {
