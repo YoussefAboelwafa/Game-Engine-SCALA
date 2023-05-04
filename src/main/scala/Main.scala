@@ -3,11 +3,9 @@ import javax.swing._
 import scala.io.StdIn
 import scala.language.postfixOps
 import scala.util.Try
-import scala.util.control.Breaks._
 
 object Main extends Exception {
   def main(args: Array[String]): Unit = {
-    //decide which game
     val Game = home()
     Game match {
       case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
@@ -17,8 +15,6 @@ object Main extends Exception {
       case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
       case "8queens" => play(eightqueens_Drawer, eightqueens_Controller, initialize_board(Game))
     }
-
-
   }
 
   def initialize_board(Game: String): Array[Array[String]] = {
@@ -27,7 +23,7 @@ object Main extends Exception {
       case "chess" => val myboard = Array(
         Array("", "", ""),
         Array("", "", ""),
-        Array(" ", "", "")
+        Array("", "", "")
       )
         myboard
       case "checkers" => val myboard = Array(
@@ -91,7 +87,6 @@ object Main extends Exception {
       }
       else
         println("\u001b[31mINVALID INPUT\u001b[0m")
-
     }
   }
 
@@ -206,9 +201,9 @@ object Main extends Exception {
   def tic_tac_toe_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     val inputArray = input.split(" ")
     val new_player = player
-    val newBoard=board.clone()
-    val (row,col)=(inputArray(0).toInt,inputArray(1).toInt)
-    if(row < 0 || row > 2 || col < 0 || col > 2 || newBoard(row)(col) != "") (newBoard,false,new_player)
+    val newBoard = board.clone()
+    val (row, col) = (inputArray(0).toInt, inputArray(1).toInt)
+    if (row < 0 || row > 2 || col < 0 || col > 2 || newBoard(row)(col) != "") (newBoard, false, new_player)
     else {
       newBoard(row)(col) = if (player) "x" else "o"
       (newBoard, true, !new_player)
@@ -243,7 +238,7 @@ object Main extends Exception {
   def connect4_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
 
     val new_player = player
-    if (input.toInt > 6 || input.toInt < 0) (board,false,new_player)
+    if (input.toInt > 6 || input.toInt < 0) (board, false, new_player)
     else {
       (5 until -1 by -1).find { i =>
         board(i)(input.toInt) == "W"
