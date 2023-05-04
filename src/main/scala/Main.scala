@@ -111,6 +111,10 @@ object Main extends Exception {
   }
 
   def suduko_Drawer(board: Array[Array[String]]): Unit = {
+    val win = java.awt.Window.getWindows
+    for (i <- 0 until win.length) {
+      win(i).dispose()
+    }
     val frame = new JFrame("Suduko")
     val panel = new JPanel(new GridLayout(9, 9))
     for (i <- 0 until 9; j <- 0 until 9) {
@@ -200,6 +204,10 @@ object Main extends Exception {
   }
 
   def tic_tac_toe_Drawer(board: Array[Array[String]]): Unit = {
+    val win = java.awt.Window.getWindows
+    for (i <- 0 until win.length) {
+      win(i).dispose()
+    }
     val frame = new JFrame("Tic Tac Toe")
     frame.setLayout(new BorderLayout())
 
@@ -237,6 +245,10 @@ object Main extends Exception {
   }
 
   def connect4_Drawer(board: Array[Array[String]]): Unit = {
+    val win = java.awt.Window.getWindows
+    for (i <- 0 until win.length) {
+      win(i).dispose()
+    }
     val frame = new JFrame("connect4")
     frame.setLayout(new BorderLayout())
     val panel = new JPanel(new GridLayout(6, 7))
@@ -275,6 +287,10 @@ object Main extends Exception {
   }
 
   def eightqueens_Drawer(board: Array[Array[String]]): Unit = {
+    val win = java.awt.Window.getWindows
+    for (i <- 0 until win.length) {
+      win(i).dispose()
+    }
     val frame = new JFrame("8queens")
     frame.setLayout(new BorderLayout())
     val panel = new JPanel(new GridLayout(8, 8))
