@@ -16,7 +16,7 @@ object Main extends Exception{
       case "tic_tac_toe" => play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
       case "connect4" =>play(connect4_Drawer,connect4_Controller,initialize_board(Game))
       case "sudoko" =>play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
-      case "8queens" =>play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
+      case "8queens" =>play(eightqueens_Drawer,eightqueens_Controller,initialize_board(Game))
     }
 
   }
@@ -51,17 +51,27 @@ object Main extends Exception{
       )
       myboard
       case "sudoko"=>val myboard = Array(
-        Array("", "", ""),
-        Array("", "", ""),
-        Array(" ", "", "")
+        Array("0", "0", "0","0","0","0","0","0"),
+        Array("0", "0", "0","0","0","0","0","0"),
+        Array("0", "0", "0","0","0","0","0","0"),
+        Array("0", "0", "0","0","0","0","0","0"),
+        Array("0", "0", "0","0","0","0","0","0"),
+        Array("0", "0", "0","0","0","0","0","0"),
+        Array("0", "0", "0","0","0","0","0","0"),
+        Array("0", "0", "0","0","0","0","0","0")
       )
       myboard
-      case "8queens"=>val myboard = Array(
-        Array("", "", ""),
-        Array("", "", ""),
-        Array(" ", "", "")
+      case "8queens"=> val myboard = Array(
+        Array("0", "0", "0", "0", "0", "0", "0", "0"),
+        Array("0", "0", "0", "0", "0", "0", "0", "0"),
+        Array("0", "0", "0", "0", "0", "0", "0", "0"),
+        Array("0", "0", "0", "0", "0", "0", "0", "0"),
+        Array("0", "0", "0", "0", "0", "0", "0", "0"),
+        Array("0", "0", "0", "0", "0", "0", "0", "0"),
+        Array("0", "0", "0", "0", "0", "0", "0", "0"),
+        Array("0", "0", "0", "0", "0", "0", "0", "0")
       )
-      myboard
+        myboard
     }
 
   }
@@ -123,7 +133,7 @@ object Main extends Exception{
       val button = new JButton()
       button.setOpaque(true)
       board(i)(j) match {
-        case "R" => button.setBackground(Color.RED)
+        case "0" => button.setBackground(Color.RED)
         case "Y" => button.setBackground(Color.YELLOW)
         case "W" => button.setBackground(Color.WHITE)
       }
@@ -155,6 +165,57 @@ breakable {
       new_player= !new_player
     }
     (board,result,new_player)
+  }
+  def eightqueens_Drawer(board: Array[Array[String]]):Unit={
+    val frame = new JFrame("8queens")
+    frame.setLayout(new BorderLayout())
+    val panel = new JPanel(new GridLayout(8, 8))
+    for (i <- 0 until 8; j <- 0 until 8) {
+      val button = new JButton()
+      button.setOpaque(true)
+      if((i%2==0 && j%2==0)||(i%2==1 && j%2==1))
+        {
+               button.setBackground(Color.WHITE)
+        }
+      else if((i%2==0 && j%2==1) || (i%2==1 && j%2==0)){
+              button.setBackground(Color.GRAY)
+      }
+      board(i)(j) match {
+        case "1" => button.setText("♛")
+        case "0" =>
+      }
+      button.setPreferredSize(new Dimension(100, 100))
+      button.setFont(button.getFont().deriveFont(64f))
+      button.setEnabled(false)
+      panel.add(button)
+    }
+
+    frame.add(panel, BorderLayout.CENTER)
+    frame.pack()
+    frame.setVisible(true)
+  }
+  def eightqueens_Controller(input: String, board: Array[Array[String]], player: Boolean):(Array[Array[String]],Boolean,Boolean)={
+    val inputArray = input.split(",")
+    val row = inputArray(0).toInt
+    val col = inputArray(1).toInt
+
+    // Check for row
+    val row_bool = board(row).contains("1")
+    val col_bool = board.exists(_(col) == "1")
+
+    val diagonal_bool = (1 to 7).flatMap { i =>
+      Seq((row + i, col + i), (row + i, col - i), (row - i, col + i), (row - i, col - i))
+    }.exists {
+      case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && board(r)(c) == "1"
+    }
+
+    if (row_bool || col_bool || diagonal_bool) {
+      println("Invalid move")
+      (board, false, player)
+    } else {
+      board(row)(col) = "1"
+      (board, true, !player)
+    }
   }
   def home():String={
     println("1.chess\n2.checkers\n3.tic_tac_toe\n4.connect4\n5.sudoko\n6.8queens\nenter your choice:")
