@@ -168,6 +168,18 @@ object Main extends Exception {
       => (row, col, value)
       case _ => return (board, false, false)
     }
+    for (i <- 0 until (9)) {
+      if (value.toString == board(row)(i) || value.toString == board(i)(col)) {
+        return (board, false, false)
+      }
+    }
+    val boxRow = row / 3
+    val boxCol = col / 3
+    for (i <- boxRow * 3 until boxRow * 3 + 3; j <- boxCol * 3 until boxCol * 3 + 3) {
+      if (value.toString == board(i)(j)) {
+        return (board, false, false)
+      }
+    }
     board(row)(col) = if (value == 0) "-" else value.toString
     (board, true, false)
   }
@@ -193,17 +205,15 @@ object Main extends Exception {
 
   def tic_tac_toe_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     val inputArray = input.split(" ")
-    val row = inputArray(0).toInt
-    val col = inputArray(1).toInt
-    var result = true
-    var new_player = player
-    if (row < 0 || row > 2 || col < 0 || col > 2 || board(row)(col) != "")
-      result = false
+    val new_player = player
+    val newBoard=board.clone()
+    val (row,col)=(inputArray(0).toInt,inputArray(1).toInt)
+    if(row < 0 || row > 2 || col < 0 || col > 2 || newBoard(row)(col) != "") (newBoard,false,new_player)
     else {
-      board(row)(col) = if (player) "x" else "o"
-      new_player = !new_player
+      newBoard(row)(col) = if (player) "x" else "o"
+      (newBoard, true, !new_player)
     }
-    (board, result, new_player)
+
   }
 
   def connect4_Drawer(board: Array[Array[String]]): Unit = {
@@ -212,7 +222,7 @@ object Main extends Exception {
     val panel = new JPanel(new GridLayout(6, 7))
     for (i <- 0 until 6; j <- 0 until 7) {
       val button = new JLabel()
-      button.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.BLACK))
+      button.setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10, Color.BLACK))
       button.setOpaque(true)
       board(i)(j) match {
         case "R" => button.setBackground(Color.RED)
@@ -231,22 +241,19 @@ object Main extends Exception {
   }
 
   def connect4_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
-    var result = true
-    var new_player = player
-    if (input.toInt > 6 || input.toInt < 0) result = false
+
+    val new_player = player
+    if (input.toInt > 6 || input.toInt < 0) (board,false,new_player)
     else {
-      breakable {
-        for (i <- 5 until 0 by -1) {
-          if (board(i)(input.toInt) == "W") {
-            if (new_player) board(i)(input.toInt) = "R"
-            else board(i)(input.toInt) = "Y"
-            break
-          }
-        }
+      (5 until -1 by -1).find { i =>
+        board(i)(input.toInt) == "W"
+      }.map { i =>
+        val newBoard = board.clone()
+        newBoard(i)(input.toInt) = if (new_player) "R" else "Y"
       }
-      new_player = !new_player
+      (board, true, !new_player)
     }
-    (board, result, new_player)
+
   }
 
   def eightqueens_Drawer(board: Array[Array[String]]): Unit = {
@@ -255,12 +262,18 @@ object Main extends Exception {
     val panel = new JPanel(new GridLayout(8, 8))
     for (i <- 0 until 8; j <- 0 until 8) {
       val button = new JButton()
+
       button.setOpaque(true)
+      button.setForeground(Color.BLACK)
+
       if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)) {
         button.setBackground(Color.WHITE)
+        button.setOpaque(true)
       }
       else if ((i % 2 == 0 && j % 2 == 1) || (i % 2 == 1 && j % 2 == 0)) {
         button.setBackground(Color.GRAY)
+        button.setOpaque(true)
+
       }
       board(i)(j) match {
         case "1" => button.setText("♛")
@@ -278,7 +291,7 @@ object Main extends Exception {
   }
 
   def eightqueens_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
-    val inputArray = input.split(",")
+    val inputArray = input.split(" ")
     val row = inputArray(0).toInt
     val col = inputArray(1).toInt
 
@@ -293,7 +306,6 @@ object Main extends Exception {
     }
 
     if (row_bool || col_bool || diagonal_bool) {
-      println("Invalid move")
       (board, false, player)
     } else {
       board(row)(col) = "1"
