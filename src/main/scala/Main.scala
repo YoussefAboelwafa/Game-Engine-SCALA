@@ -17,6 +17,26 @@ object Main extends Exception {
     }
   }
 
+  def home(): String = {
+    println("\u001b[33mChoose a game to play:\u001b[0m\n1.Chess\n2.Checkers\n" +
+      "3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\n\u001b[33mEnter your choice:\u001b[0m")
+    val input = Try(StdIn.readLine().toInt).toOption
+    var result: String = ""
+    input match {
+      case Some(1) => result = "chess"
+      case Some(2) => result = "checkers"
+      case Some(3) => result = "tic_tac_toe"
+      case Some(4) => result = "connect4"
+      case Some(5) => result = "suduko"
+      case Some(6) => result = "8queens"
+      case _ => {
+        println("\u001b[31mINVALID INPUT\u001b[0m")
+        home()
+      }
+    }
+    result
+  }
+
   def initialize_board(Game: String): Array[Array[String]] = {
 
     Game match {
@@ -95,7 +115,7 @@ object Main extends Exception {
     val panel = new JPanel(new GridLayout(9, 9))
     for (i <- 0 until 9; j <- 0 until 9) {
       if (board(i)(j) == "-" || board(i)(j) == "0") {
-        val cell = new JLabel(s"${i},${j} ")
+        val cell = new JLabel(s"${i}, ${j}")
         cell.setPreferredSize(new Dimension(70, 70))
 
         cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 18))
@@ -186,11 +206,16 @@ object Main extends Exception {
     val panel = new JPanel(new GridLayout(3, 3))
 
     for (i <- 0 until 3; j <- 0 until 3) {
-      val button = new JButton(board(i)(j))
-      button.setPreferredSize(new Dimension(100, 100))
-      button.setFont(button.getFont().deriveFont(64f))
-      button.setEnabled(false)
-      panel.add(button)
+      val cell = new JLabel(board(i)(j))
+      cell.setPreferredSize(new Dimension(200, 200))
+      cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 120))
+      cell.setHorizontalAlignment(SwingConstants.CENTER)
+      cell.setForeground(Color.BLACK)
+      cell.setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createMatteBorder(10, 10, 10, 10, Color.BLACK),
+        cell.getBorder
+      ))
+      panel.add(cell)
     }
 
     frame.add(panel, BorderLayout.CENTER)
@@ -216,20 +241,18 @@ object Main extends Exception {
     frame.setLayout(new BorderLayout())
     val panel = new JPanel(new GridLayout(6, 7))
     for (i <- 0 until 6; j <- 0 until 7) {
-      val button = new JLabel()
-      button.setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10, Color.BLACK))
-      button.setOpaque(true)
+      val cell = new JLabel()
+      cell.setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10, Color.BLACK))
+      cell.setOpaque(true)
       board(i)(j) match {
-        case "R" => button.setBackground(Color.RED)
-        case "Y" => button.setBackground(Color.YELLOW)
-        case "W" => button.setBackground(Color.WHITE)
+        case "R" => cell.setBackground(Color.RED)
+        case "Y" => cell.setBackground(Color.YELLOW)
+        case "W" => cell.setBackground(Color.WHITE)
       }
-      button.setPreferredSize(new Dimension(100, 100))
-      button.setFont(button.getFont().deriveFont(64f))
-      button.setEnabled(false)
-      panel.add(button)
+      cell.setPreferredSize(new Dimension(100, 100))
+      cell.setFont(cell.getFont().deriveFont(64f))
+      panel.add(cell)
     }
-
     frame.add(panel, BorderLayout.CENTER)
     frame.pack()
     frame.setVisible(true)
@@ -256,28 +279,28 @@ object Main extends Exception {
     frame.setLayout(new BorderLayout())
     val panel = new JPanel(new GridLayout(8, 8))
     for (i <- 0 until 8; j <- 0 until 8) {
-      val button = new JButton()
-
-      button.setOpaque(true)
-      button.setForeground(Color.BLACK)
+      val cell = new JLabel()
+      cell.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK))
+      cell.setHorizontalAlignment(SwingConstants.CENTER)
+      cell.setOpaque(true)
+      cell.setForeground(Color.BLACK)
 
       if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)) {
-        button.setBackground(Color.WHITE)
-        button.setOpaque(true)
+        cell.setBackground(Color.WHITE)
+        cell.setOpaque(true)
       }
       else if ((i % 2 == 0 && j % 2 == 1) || (i % 2 == 1 && j % 2 == 0)) {
-        button.setBackground(Color.GRAY)
-        button.setOpaque(true)
+        cell.setBackground(Color.GRAY)
+        cell.setOpaque(true)
 
       }
       board(i)(j) match {
-        case "1" => button.setText("♛")
+        case "1" => cell.setText("♛")
         case "0" =>
       }
-      button.setPreferredSize(new Dimension(100, 100))
-      button.setFont(button.getFont().deriveFont(64f))
-      button.setEnabled(false)
-      panel.add(button)
+      cell.setPreferredSize(new Dimension(100, 100))
+      cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 70))
+      panel.add(cell)
     }
 
     frame.add(panel, BorderLayout.CENTER)
@@ -306,26 +329,6 @@ object Main extends Exception {
       board(row)(col) = "1"
       (board, true, !player)
     }
-  }
-
-  def home(): String = {
-    println("\u001b[33mChoose a game to play:\u001b[0m\n1.Chess\n2.Checkers\n" +
-      "3.Tic Tac Toe\n4.Connect4\n5.Suduko\n6.Eight Queens\n\u001b[33mEnter your choice:\u001b[0m")
-    val input = Try(StdIn.readLine().toInt).toOption
-    var result: String = ""
-    input match {
-      case Some(1) => result = "chess"
-      case Some(2) => result = "checkers"
-      case Some(3) => result = "tic_tac_toe"
-      case Some(4) => result = "connect4"
-      case Some(5) => result = "suduko"
-      case Some(6) => result = "8queens"
-      case _ => {
-        println("\u001b[31mINVALID INPUT\u001b[0m")
-        home()
-      }
-    }
-    result
   }
 
 }
