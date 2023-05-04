@@ -4,7 +4,7 @@ ThisBuild / scalaVersion := "2.13.10"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "scalla2"
+    name := "SCALA"
   )
 libraryDependencies += "org.scalafx" %% "scalafx" % "16.0.0-R25"
 javaOptions += "--add-modules=javafx.controls,javafx.fxml"

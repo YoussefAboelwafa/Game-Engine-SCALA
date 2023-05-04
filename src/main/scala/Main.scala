@@ -1,74 +1,74 @@
-
-import java.awt.Color
-import scala.io.StdIn
-import java.awt.{BorderLayout, Dimension, GridLayout}
+import java.awt.{BorderLayout, Color, Dimension, GridLayout}
 import javax.swing.{JButton, JFrame, JPanel}
-import javax.swing.JColorChooser
+import scala.io.StdIn
 import scala.language.postfixOps
 import scala.util.control.Breaks._
-object Main extends Exception{
+
+object Main extends Exception {
   def main(args: Array[String]): Unit = {
     //decide which game
-    val Game=home()
+    val Game = home()
     Game match {
-      case "chess" =>play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
-      case "checkers" =>play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
-      case "tic_tac_toe" => play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
-      case "connect4" =>play(connect4_Drawer,connect4_Controller,initialize_board(Game))
-      case "sudoko" =>play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
-      case "8queens" =>play(tic_tac_toe_Drawer,tic_tac_toe_Controller,initialize_board(Game))
+      case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
+      case "sudoko" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "8queens" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
     }
 
   }
-  def initialize_board(Game:String):Array[Array[String]]={
+
+  def initialize_board(Game: String): Array[Array[String]] = {
 
     Game match {
-      case "chess"=> val myboard = Array(
-        Array("", "", ""),
-        Array("", "", ""),
-        Array(" ", "", "")
-      )
-      myboard
-      case "checkers"=> val myboard = Array(
-        Array("", "", ""),
-        Array("", "", ""),
-        Array(" ", "", "")
-      )
-      myboard
-      case "tic_tac_toe"=>val myboard= Array(
+      case "chess" => val myboard = Array(
         Array("", "", ""),
         Array("", "", ""),
         Array("", "", "")
       )
-      myboard
-      case "connect4"=>val myboard = Array(
-        Array("W", "W", "W","W","W","W","W"),
-        Array("W", "W", "W","W","W","W","W"),
-        Array("W", "W", "W","W","W","W","W"),
-        Array("W", "W", "W","W","W","W","W"),
-        Array("W", "W", "W","W","W","W","W"),
-        Array("W", "W", "W","W","W","W","W")
+        myboard
+      case "checkers" => val myboard = Array(
+        Array("", "", ""),
+        Array("", "", ""),
+        Array("", "", "")
       )
-      myboard
-      case "sudoko"=>val myboard = Array(
+        myboard
+      case "tic_tac_toe" => val myboard = Array(
+        Array("", "", ""),
+        Array("", "", ""),
+        Array("", "", "")
+      )
+        myboard
+      case "connect4" => val myboard = Array(
+        Array("W", "W", "W", "W", "W", "W", "W"),
+        Array("W", "W", "W", "W", "W", "W", "W"),
+        Array("W", "W", "W", "W", "W", "W", "W"),
+        Array("W", "W", "W", "W", "W", "W", "W"),
+        Array("W", "W", "W", "W", "W", "W", "W"),
+        Array("W", "W", "W", "W", "W", "W", "W")
+      )
+        myboard
+      case "sudoko" => val myboard = Array(
         Array("", "", ""),
         Array("", "", ""),
         Array(" ", "", "")
       )
-      myboard
-      case "8queens"=>val myboard = Array(
+        myboard
+      case "8queens" => val myboard = Array(
         Array("", "", ""),
         Array("", "", ""),
-        Array(" ", "", "")
+        Array("", "", "")
       )
-      myboard
+        myboard
     }
 
   }
-  def play(drawer: Array[Array[String]] => Unit, controller: (String, Array[Array[String]], Boolean) => (Array[Array[String]], Boolean,Boolean),board:Array[Array[String]]): Unit = {
+
+  def play(drawer: Array[Array[String]] => Unit, controller: (String, Array[Array[String]], Boolean) => (Array[Array[String]], Boolean, Boolean), board: Array[Array[String]]): Unit = {
     val turn: Boolean = true
     val result: Boolean = true
-    var tupel = (board, result,turn)
+    var tupel = (board, result, turn)
     while (true) {
       val input = StdIn.readLine("Enter input: ")
       tupel = controller(input, tupel._1, tupel._3)
@@ -98,23 +98,24 @@ object Main extends Exception{
     frame.add(panel, BorderLayout.CENTER)
     frame.pack()
     frame.setVisible(true)
-//    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
+    //    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
   }
 
-  def tic_tac_toe_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]],Boolean,Boolean) = {
+  def tic_tac_toe_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     val inputArray = input.split(",")
     val row = inputArray(0).toInt
     val col = inputArray(1).toInt
-    var result=true
-    var new_player=player
-    if(row<0 || row>2 || col<0 || col>2|| board(row)(col)!="")
-      result=false
-      else {
+    var result = true
+    var new_player = player
+    if (row < 0 || row > 2 || col < 0 || col > 2 || board(row)(col) != "")
+      result = false
+    else {
       board(row)(col) = if (player) "x" else "o"
-      new_player= !new_player
+      new_player = !new_player
     }
-    (board,result,new_player)
+    (board, result, new_player)
   }
+
   def connect4_Drawer(board: Array[Array[String]]): Unit = {
     val frame = new JFrame("connect4")
     frame.setLayout(new BorderLayout())
@@ -137,36 +138,38 @@ object Main extends Exception{
     frame.pack()
     frame.setVisible(true)
   }
-  def connect4_Controller(input: String, board: Array[Array[String]], player: Boolean):(Array[Array[String]],Boolean,Boolean)={
+
+  def connect4_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     var result = true
     var new_player = player
-    if(input.toInt>6 || input.toInt<0)result=false
+    if (input.toInt > 6 || input.toInt < 0) result = false
     else {
-breakable {
-  for (i <- 5 until 0 by -1) {
-    if (board(i)(input.toInt) == "W") {
-      if (new_player) board(i)(input.toInt) = "R"
-      else board(i)(input.toInt) = "Y"
-      break
-    }
-  }
-}
+      breakable {
+        for (i <- 5 until 0 by -1) {
+          if (board(i)(input.toInt) == "W") {
+            if (new_player) board(i)(input.toInt) = "R"
+            else board(i)(input.toInt) = "Y"
+            break
+          }
+        }
+      }
 
-      new_player= !new_player
+      new_player = !new_player
     }
-    (board,result,new_player)
+    (board, result, new_player)
   }
-  def home():String={
+
+  def home(): String = {
     println("1.chess\n2.checkers\n3.tic_tac_toe\n4.connect4\n5.sudoko\n6.8queens\nenter your choice:")
     val input = StdIn.readLine().toInt
-    var result:String=""
+    var result: String = ""
     input match {
-      case 1 => result="chess"
-      case 2 => result="checkers"
-      case 3 => result="tic_tac_toe"
-      case 4 => result="connect4"
-      case 5 => result="sudoko"
-      case 6=> result="8queens"
+      case 1 => result = "chess"
+      case 2 => result = "checkers"
+      case 3 => result = "tic_tac_toe"
+      case 4 => result = "connect4"
+      case 5 => result = "sudoko"
+      case 6 => result = "8queens"
     }
     result
   }

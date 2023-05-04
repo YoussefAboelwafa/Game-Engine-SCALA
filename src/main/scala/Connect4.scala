@@ -1,10 +1,8 @@
 import java.awt._
 import java.awt.event._
 import javax.swing._
-import java.awt.Color
-import javax.swing.border.Border
 import scala.util.control.Breaks.break
-class Connect4 {
+class Connect4 extends App{
 
 
   // Create the game board
