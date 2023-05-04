@@ -115,10 +115,10 @@ object Main extends Exception {
     val panel = new JPanel(new GridLayout(9, 9))
     for (i <- 0 until 9; j <- 0 until 9) {
       if (board(i)(j) == "-" || board(i)(j) == "0") {
-        val cell = new JLabel(s"${i}, ${j}")
+        val cell = new JLabel(s"${i},${j}")
         cell.setPreferredSize(new Dimension(70, 70))
 
-        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 18))
+        cell.setFont(new Font(cell.getFont().getName(), Font.ITALIC, 18))
         cell.setForeground(Color.GRAY)
         cell.setBackground(Color.YELLOW)
         cell.setOpaque(true)
@@ -146,7 +146,7 @@ object Main extends Exception {
       }
       else {
         val cell = new JLabel(board(i)(j))
-        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 24))
+        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 30))
         cell.setForeground(Color.BLACK)
         cell.setBackground(Color.YELLOW)
         cell.setHorizontalAlignment(SwingConstants.CENTER)
