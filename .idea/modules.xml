@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SCALA.iml" filepath="$PROJECT_DIR$/.idea/modules/SCALA.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/scalla2-build.iml" filepath="$PROJECT_DIR$/.idea/modules/scalla2-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SCALA-build.iml" filepath="$PROJECT_DIR$/.idea/modules/SCALA-build.iml" />
     </modules>
   </component>
 </project>
