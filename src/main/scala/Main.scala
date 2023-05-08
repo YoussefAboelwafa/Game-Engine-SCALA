@@ -3,12 +3,12 @@ import javax.swing._
 import scala.io.StdIn
 import scala.language.postfixOps
 import scala.util.Try
-
+import scala.util.Random
 object Main extends Exception {
   def main(args: Array[String]): Unit = {
     val Game = home()
     Game match {
-      case "chess" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "chess" => play(chess_Drawer, chess_Controller, initialize_board(Game))
       case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
       case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
       case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
@@ -41,9 +41,14 @@ object Main extends Exception {
 
     Game match {
       case "chess" => val myboard = Array(
-        Array("", "", ""),
-        Array("", "", ""),
-        Array("", "", "")
+        Array("T1", "H1", "F1", "Q1", "K1", "F1", "H1", "T1"),
+          Array("S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1"),
+          Array("", "", "", "", "", "", "", ""),
+          Array("", "", "", "", "", "", "", ""),
+          Array("", "", "", "", "", "", "", ""),
+          Array("", "", "", "", "", "", "", ""),
+          Array("S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2"),
+          Array("T2", "H2", "F2", "Q2", "K2", "F2", "H2", "T2")
       )
         myboard
       case "checkers" => val myboard = Array(
@@ -67,17 +72,7 @@ object Main extends Exception {
         Array("W", "W", "W", "W", "W", "W", "W")
       )
         myboard
-      case "suduko" => val myboard = Array(
-        Array("-", "-", "7", "4", "9", "1", "6", "-", "5"),
-        Array("2", "-", "-", "-", "6", "-", "3", "-", "9"),
-        Array("-", "-", "-", "-", "-", "7", "-", "1", "-"),
-        Array("-", "5", "8", "6", "-", "-", "-", "-", "4"),
-        Array("-", "-", "3", "-", "-", "-", "-", "9", "-"),
-        Array("-", "-", "6", "2", "-", "-", "1", "8", "7"),
-        Array("9", "-", "4", "-", "7", "-", "-", "-", "2"),
-        Array("6", "7", "-", "8", "3", "-", "-", "-", "-"),
-        Array("8", "1", "-", "-", "4", "5", "-", "-", "-"),
-      )
+      case "suduko" => val myboard = generate()
         myboard
       case "8queens" => val myboard = Array(
         Array("0", "0", "0", "0", "0", "0", "0", "0"),
@@ -212,13 +207,21 @@ object Main extends Exception {
     frame.setLayout(new BorderLayout())
 
     val panel = new JPanel(new GridLayout(3, 3))
-
     for (i <- 0 until 3; j <- 0 until 3) {
       val cell = new JLabel(board(i)(j))
+      if(cell.getText=="") cell.setText(s"${i},${j}")
       cell.setPreferredSize(new Dimension(200, 200))
-      cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 120))
+      if(board(i)(j)!="") {
+        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 120))
+      }
+      else {
+        cell.setFont(new Font(cell.getFont().getName(), Font.ITALIC, 20))
+      }
       cell.setHorizontalAlignment(SwingConstants.CENTER)
+      if(board(i)(j)!="")
       cell.setForeground(Color.BLACK)
+      else
+        cell.setForeground(Color.GRAY)
       cell.setBorder(BorderFactory.createCompoundBorder(
         BorderFactory.createMatteBorder(10, 10, 10, 10, Color.BLACK),
         cell.getBorder
@@ -254,6 +257,7 @@ object Main extends Exception {
     val panel = new JPanel(new GridLayout(6, 7))
     for (i <- 0 until 6; j <- 0 until 7) {
       val cell = new JLabel()
+      if(i==0) cell.setText(s"${j}")
       cell.setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10, Color.BLACK))
       cell.setOpaque(true)
       board(i)(j) match {
@@ -262,7 +266,10 @@ object Main extends Exception {
         case "W" => cell.setBackground(Color.WHITE)
       }
       cell.setPreferredSize(new Dimension(100, 100))
-      cell.setFont(cell.getFont().deriveFont(64f))
+cell.setHorizontalAlignment(SwingConstants.CENTER)
+      cell.setForeground(Color.GRAY)
+      cell.setFont(new Font(cell.getFont().getName(), Font.ITALIC, 30))
+//      cell.setFont(cell.getFont().deriveFont(64f))
       panel.add(cell)
     }
     frame.add(panel, BorderLayout.CENTER)
@@ -295,7 +302,7 @@ object Main extends Exception {
     frame.setLayout(new BorderLayout())
     val panel = new JPanel(new GridLayout(8, 8))
     for (i <- 0 until 8; j <- 0 until 8) {
-      val cell = new JLabel()
+      val cell=new JLabel(s"${i},${j}")
       cell.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK))
       cell.setHorizontalAlignment(SwingConstants.CENTER)
       cell.setOpaque(true)
@@ -315,7 +322,13 @@ object Main extends Exception {
         case "0" =>
       }
       cell.setPreferredSize(new Dimension(100, 100))
+      if(board(i)(j)=="1")
       cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 70))
+      else
+        {
+          cell.setFont(new Font(cell.getFont().getName(), Font.ITALIC, 18))
+
+        }
       panel.add(cell)
     }
 
@@ -328,24 +341,608 @@ object Main extends Exception {
     val inputArray = input.split(" ")
     val row = inputArray(0).toInt
     val col = inputArray(1).toInt
-
-    // Check for row
-    val row_bool = board(row).contains("1")
-    val col_bool = board.exists(_(col) == "1")
-
-    val diagonal_bool = (1 to 7).flatMap { i =>
-      Seq((row + i, col + i), (row + i, col - i), (row - i, col + i), (row - i, col - i))
-    }.exists {
-      case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && board(r)(c) == "1"
+    val remove=if(inputArray.length==3)inputArray(2).toInt else -1
+    if(remove!=0 && remove!=(-1)) return (board,false,player)
+     if(row<0 || row>7 || col <0 || col>7 ) (board, false, player)
+    else {
+  if(remove==0)
+    { if(board(row)(col)=="1") {
+      board(row)(col) = "0"
+      return (board, true, player)
+    }
+      else {
+      return (board, false, player)
     }
 
-    if (row_bool || col_bool || diagonal_bool) {
-      (board, false, player)
-    } else {
-      board(row)(col) = "1"
-      (board, true, !player)
     }
+  // Check for row
+  val row_bool = board(row).contains("1")
+  val col_bool = board.exists(_(col) == "1")
+
+  val diagonal_bool = (1 to 7).flatMap { i =>
+    Seq((row + i, col + i), (row + i, col - i), (row - i, col + i), (row - i, col - i))
+  }.exists {
+    case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && board(r)(c) == "1"
   }
+
+  if (row_bool || col_bool || diagonal_bool) {
+    (board, false, player)
+  } else {
+    board(row)(col) = "1"
+    (board, true, player)
+  }
+}
+  }
+
+  def generate(): Array[Array[String]] = {
+    val board = Array.fill(9)(Array.fill(9)("-"))
+    for (i <- 0 until 9; j <- 0 until 9) {
+      if (Random.nextDouble() < 0.5) {
+        val randomNumber = Random.nextInt(9) + 1
+        if (validate_input(board, i, j, randomNumber)) {
+          board(i)(j) = randomNumber.toString
+        }
+      }
+    }
+    board
+  }
+
+  def validate_input(grid: Array[Array[String]], row: Int, col: Int, value: Int): Boolean = {
+    val boxRow = (row / 3) * 3
+    val boxCol = (col / 3) * 3
+
+    def checkRow(j: Int): Boolean = grid(row)(j) == value.toString
+
+    def checkColumn(i: Int): Boolean = grid(i)(col) == value.toString
+
+    def checkBox(i: Int, j: Int): Boolean = grid(i)(j) == value.toString
+
+    !((0 until 9).exists(checkRow) ||
+      (0 until 9).exists(checkColumn) ||
+      (boxRow until boxRow + 3).exists(i => (boxCol until boxCol + 3).exists(j => checkBox(i, j))))
+  }
+  def chess_Drawer(board: Array[Array[String]]): Unit = {
+    val win = java.awt.Window.getWindows
+    for (i <- 0 until win.length) {
+      win(i).dispose()
+    }
+    val frame = new JFrame("Chess")
+    frame.setLayout(new BorderLayout())
+    val panel = new JPanel(new GridLayout(8, 8))
+    for (i <- 0 until 8; j <- 0 until 8) {
+      val cell = new JLabel(s"${i},${j}")
+      cell.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK))
+      cell.setHorizontalAlignment(SwingConstants.CENTER)
+      cell.setOpaque(true)
+      cell.setForeground(Color.BLACK)
+
+      if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)) {
+        cell.setBackground(Color.WHITE)
+        cell.setOpaque(true)
+      }
+      else if ((i % 2 == 0 && j % 2 == 1) || (i % 2 == 1 && j % 2 == 0)) {
+        cell.setBackground(Color.lightGray)
+        cell.setOpaque(true)
+
+      }
+      val blackKing = '\u265A'
+      val blackQueen = '\u265B'
+      val blackRook = '\u265C'
+      val blackBishop = '\u265D'
+      val blackKnight = '\u265E'
+      val blackPawn = '\u265F'
+
+      val whiteKing = '\u2654'
+      val whiteQueen = '\u2655'
+      val whiteRook = '\u2656'
+      val whiteBishop = '\u2657'
+      val whiteKnight = '\u2658'
+      val whitePawn = '\u2659'
+
+      board(i)(j) match {
+        case "S1" => cell.setText(blackPawn.toString)
+        case "S2" =>cell.setText(whitePawn.toString)
+        case "K1" =>cell.setText(blackKing.toString)
+        case "K2" =>cell.setText(whiteKing.toString)
+        case "Q1" =>cell.setText(blackQueen.toString)
+        case "Q2" =>cell.setText(whiteQueen.toString)
+        case "T1" =>cell.setText(blackRook.toString)
+        case "T2" =>cell.setText(whiteRook.toString)
+        case "H1" =>cell.setText(blackKnight.toString)
+        case "H2" =>cell.setText(whiteKnight.toString)
+        case "F1" =>cell.setText(blackBishop.toString)
+        case "F2" =>cell.setText(whiteBishop.toString)
+        case "" =>
+
+      }
+      cell.setPreferredSize(new Dimension(100, 100))
+      if(board(i)(j)=="")cell.setFont(new Font(cell.getFont().getName(), Font.ITALIC, 18))
+      else
+        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 70))
+
+      panel.add(cell)
+    }
+
+    frame.add(panel, BorderLayout.CENTER)
+    frame.pack()
+    frame.setVisible(true)
+  }
+  def chess_Controller(input: String, board: Array[Array[String]], player: Boolean):(Array[Array[String]], Boolean, Boolean)={
+    val inputArray = input.split(" ")
+    val src_row=inputArray(0).toInt
+    val src_col=inputArray(1).toInt
+    val dest_row=inputArray(2).toInt
+    val dest_col=inputArray(3).toInt
+    if(src_row<0 || src_row>7 || src_col<0 || src_col>7 || dest_col<0 || dest_col>7 || dest_row<0 || dest_row>7 || board(src_row)(src_col)=="") return (board,false,player)
+    if(board(src_row)(src_col).charAt(1)=='1' && player==true)return (board,false,player)
+    if(board(src_row)(src_col).charAt(1)=='2' && player==false)return (board,false,player)
+    if(board(src_row)(src_col)=="S2")
+      {
+        if ((src_row == 6) && (dest_row == 5) && (src_col == dest_col) && (board(dest_row)(dest_col) == "")) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "S2"
+          return (board, true, !player)
+        }
+        else if ((src_row == 6) && (dest_row == 4) && (src_col == dest_col) && (board(dest_row)(dest_col) == "") && (board(dest_row + 1)(dest_col) == "")) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "S2"
+          return (board, true, !player)
+        }
+        else if ((src_col == dest_col) && ((src_row - dest_row) == 1) && (board(dest_row)(dest_col) == "")) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "S2"
+          return (board,true,!player)
+        }
+        else if (((src_row - dest_row) == 1) && ((dest_col == (src_col - 1)) || (dest_col == (src_col + 1))) && (board(dest_row)(dest_col) != "") && (board(dest_row)(dest_col).charAt(1) == '1')) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "S2"
+          return (board, true, !player)
+        }
+        else {
+          return (board,false,player)
+        }
+      }
+    else if (board(src_row)(src_col) == "S1") {
+      if ((src_row == 1) && (dest_row == 2) && (src_col == dest_col) && (board(dest_row)(dest_col) == "")) {
+        board(src_row)(src_col) = ""
+        board(dest_row)(dest_col) = "S1"
+        return (board, true, !player)
+      }
+      else if ((src_row == 1) && (dest_row == 3) && (src_col == dest_col) && (board(dest_row)(dest_col) == "") && (board(src_row + 1)(dest_col) == "")) {
+        board(src_row)(src_col) = ""
+        board(dest_row)(dest_col) = "S1"
+        return (board, true, !player)
+      }
+      else if ((src_col == dest_col) && ((dest_row - src_row) == 1) && (board(dest_row)(dest_col) == "")) {
+        board(src_row)(src_col) = ""
+        board(dest_row)(dest_col) = "S1"
+        return (board, true, !player)
+      }
+      else if (((dest_row - src_row) == 1) && ((dest_col == (src_col - 1)) || (dest_col == (src_col + 1))) && (board(dest_row)(dest_col) != "") && (board(dest_row)(dest_col).charAt(1) == '2')) {
+        board(src_row)(src_col) = ""
+        board(dest_row)(dest_col) = "S1"
+        return (board, true, !player)
+      }
+      else {
+        return (board, false, player)
+      }
+    }
+    else if(board(src_row)(src_col)=="H2")
+      {
+        if ((dest_row == src_row - 1) && ((dest_col == src_col - 2) || (dest_col == src_col + 2)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H2"
+          return (board,true,!player)
+        }
+        else if ((dest_row == src_row + 1) && ((dest_col == src_col - 2) || (dest_col == src_col + 2)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H2"
+          return (board, true, !player)
+        }
+        else if ((dest_row == src_row + 2) && ((dest_col == src_col - 1) || (dest_col == src_col + 1)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H2"
+          return (board, true, !player)
+        }
+        else if ((dest_row == src_row - 2) && ((dest_col == src_col - 1) || (dest_col == src_col + 1)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H2"
+          return (board, true, !player)
+        }
+        else {
+          return (board,false,player)
+        }
+      }
+      else if(board(src_row)(src_col)=="H1")
+      {
+        if ((dest_row == src_row - 1) && ((dest_col == src_col - 2) || (dest_col == src_col + 2)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H1"
+          return (board, true, !player)
+        }
+        else if ((dest_row == src_row + 1) && ((dest_col == src_col - 2) || (dest_col == src_col + 2)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H1"
+          return (board, true, !player)
+        }
+        else if ((dest_row == src_row + 2) && ((dest_col == src_col - 1) || (dest_col == src_col + 1)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H1"
+          return (board, true, !player)
+        }
+        else if ((dest_row == src_row - 2) && ((dest_col == src_col - 1) || (dest_col == src_col + 1)) && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "H1"
+          return (board, true, !player)
+        }
+        else {
+          return (board, false, player)
+        }
+      }
+      else if(board(src_row)(src_col)=="F2")
+      {
+        if ((src_col - dest_col == src_row - dest_row) && src_row - dest_row > 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          var i = 1
+          while (i < src_row - dest_row) {
+            if (board(src_row - i)(src_col - i) != "") {
+             return (board,false,player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F2"
+          return (board,true,!player)
+        }
+        else if ((src_col - dest_col == src_row - dest_row) && src_row - dest_row < 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          var i = 1
+          while (i < dest_row - src_row) {
+            if (board(src_row + i)(src_col + i) != "") {
+              return (board,false,player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F2"
+         return (board,true,!player)
+        }
+        else if ((src_col - dest_col == dest_row - src_row) && dest_row - src_row > 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          var i = 1
+          while (i < dest_row - src_row) {
+            if (board(src_row + i)(src_col - i) != "") {
+              return (board,false,player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F2"
+          return (board,true,!player)
+        }
+        else if ((src_col - dest_col == dest_row - src_row) && dest_row - src_row < 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1'))) {
+          var i = 1
+          while (i < src_row - dest_row) {
+            if (board(src_row - i)(src_col + i) != "") {
+             return (board,false,player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F2"
+         return (board,true,!player)
+        }
+        else {
+         return (board,false,player)
+        }
+      }
+      else if(board(src_row)(src_col)=="F1")
+      {
+        if ((src_col - dest_col == src_row - dest_row) && src_row - dest_row > 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          var i = 1
+          while (i < src_row - dest_row) {
+            if (board(src_row - i)(src_col - i) != "") {
+              return (board, false, player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F1"
+          return (board, true, !player)
+        }
+        else if ((src_col - dest_col == src_row - dest_row) && src_row - dest_row < 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          var i = 1
+          while (i < dest_row - src_row) {
+            if (board(src_row + i)(src_col + i) != "") {
+              return (board, false, player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F1"
+          return (board, true, !player)
+        }
+        else if ((src_col - dest_col == dest_row - src_row) && dest_row - src_row > 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          var i = 1
+          while (i < dest_row - src_row) {
+            if (board(src_row + i)(src_col - i) != "") {
+              return (board, false, player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F1"
+          return (board, true, !player)
+        }
+        else if ((src_col - dest_col == dest_row - src_row) && dest_row - src_row < 0 && ((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2'))) {
+          var i = 1
+          while (i < src_row - dest_row) {
+            if (board(src_row - i)(src_col + i) != "") {
+              return (board, false, player)
+            }
+
+            i += 1
+          }
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "F1"
+          return (board, true, !player)
+        }
+        else {
+          return (board, false, player)
+        }
+      }
+    else if(board(src_row)(src_col)=="T2")
+      {
+        val rook_bool = (1 to 7).flatMap { i =>
+          Seq((src_row + i, src_col), (src_row , src_col + i), (src_row - i, src_col ), (src_row , src_col - i))
+        }.exists {
+          case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && (dest_row==r && dest_col==c)
+
+        }
+
+        if(!rook_bool) return (board,false,player)
+        else {
+
+          val right = dest_col > src_col
+          val left = dest_col < src_col
+          val down = dest_row > src_row
+          val up = dest_row < src_row
+          if (right) {
+            for (col <- src_col + 1 until dest_col) {
+              if (board(src_row)(col) != "") {
+                return (board,false,player)
+              }
+            }
+          } else if (left) {
+            for (col <- src_col - 1 until dest_col by -1) {
+              if (board(src_row)(col) != "") {
+                return (board,false,player)
+              }
+            }
+          } else if (down) {
+            for (row <- src_row + 1 until dest_row) {
+              if (board(row)(src_col) != "") {
+                return (board,false,player)
+              }
+            }
+          } else if (up) {
+
+            for (row <- src_row - 1 until dest_row by -1) {
+              if (board(row)(src_col) != "") {
+
+                return (board,false,player)
+              }
+            }
+          }
+
+
+            if(  board(dest_row)(dest_col)=="" || board(dest_row)(dest_col).charAt(1)=='1') {
+              board(src_row)(src_col)=""
+              board(dest_row)(dest_col) = "T2"
+              return (board,true,!player)
+            }
+            else return (board,false,player)
+
+
+        }
+      }
+    else if (board(src_row)(src_col)=="T1")
+      {
+        val rook_bool = (1 to 7).flatMap { i =>
+          Seq((src_row + i, src_col), (src_row, src_col + i), (src_row - i, src_col), (src_row, src_col - i))
+        }.exists {
+          case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && (dest_row == r && dest_col == c)
+
+        }
+
+        if (!rook_bool) return (board, false, player)
+        else {
+
+          val right = dest_col > src_col
+          val left = dest_col < src_col
+          val down = dest_row > src_row
+          val up = dest_row < src_row
+          if (right) {
+            for (col <- src_col + 1 until dest_col) {
+              if (board(src_row)(col) != "") {
+                return (board, false, player)
+              }
+            }
+          } else if (left) {
+            for (col <- src_col - 1 until dest_col by -1) {
+              if (board(src_row)(col) != "") {
+                return (board, false, player)
+              }
+            }
+          } else if (down) {
+            for (row <- src_row + 1 until dest_row) {
+              if (board(row)(src_col) != "") {
+                return (board, false, player)
+              }
+            }
+          } else if (up) {
+
+            for (row <- src_row - 1 until dest_row by -1) {
+              if (board(row)(src_col) != "") {
+
+                return (board, false, player)
+              }
+            }
+          }
+
+
+          if (board(dest_row)(dest_col) == "" || board(dest_row)(dest_col).charAt(1) == '2') {
+            board(src_row)(src_col) = ""
+            board(dest_row)(dest_col) = "T1"
+            return (board, true, !player)
+          }
+          else return (board, false, player)
+
+
+        }
+      }
+      else if(board(src_row)(src_col)=="K2")
+      {
+        if (((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '1')) && (((src_row == dest_row) && (Math.abs(src_col - dest_col) == 1)) || ((src_col == dest_col) && (Math.abs(src_row - dest_row) == 1)) || ((Math.abs(src_col - dest_col) == 1) && (Math.abs(src_row - dest_row) == 1)))) {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "K2"
+         return (board,true,!player)
+        }
+        else {
+          return (board,false,player)
+        }
+      }
+    else if (board(src_row)(src_col) == "K1") {
+      if (((board(dest_row)(dest_col) == "") || (board(dest_row)(dest_col).charAt(1) == '2')) && (((src_row == dest_row) && (Math.abs(src_col - dest_col) == 1)) || ((src_col == dest_col) && (Math.abs(src_row - dest_row) == 1)) || ((Math.abs(src_col - dest_col) == 1) && (Math.abs(src_row - dest_row) == 1)))) {
+        board(src_row)(src_col) = ""
+        board(dest_row)(dest_col) = "K1"
+        return (board, true, !player)
+      }
+      else {
+        return (board, false, player)
+      }
+    }
+    else if(board(src_row)(src_col)=="Q2")
+      {
+        val row_col_bool = (1 to 7).flatMap { i =>
+          Seq((src_row + i, src_col), (src_row, src_col + i), (src_row - i, src_col), (src_row, src_col - i))
+        }.exists {
+          case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && (dest_row == r && dest_col == c)
+
+        }
+        val diagonal_bool = (1 to 7).flatMap { i =>
+          Seq((src_row + i, src_col + i), (src_row + i, src_col - i), (src_row - i, src_col + i), (src_row - i, src_col - i))
+        }.exists {
+          case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && (dest_row == r && dest_col == c)
+        }
+        if(!(row_col_bool|| diagonal_bool)) return (board,false,player)
+        else
+          {
+            if (src_row == dest_row) {
+              // check row
+              val min_col = Math.min(src_col, dest_col)
+              val max_col = Math.max(src_col, dest_col)
+             val bool= (min_col + 1 until max_col).exists(c => board(src_row)(c) != "")
+              if(bool) return (board,false,player)
+            } else if (src_col == dest_col) {
+              // check column
+              val min_row = Math.min(src_row, dest_row)
+              val max_row = Math.max(src_row, dest_row)
+             val bool= (min_row + 1 until max_row).exists(r => board(r)(src_col) != "")
+              if(bool) return (board,false,player)
+            } else if (Math.abs(src_row - dest_row) == Math.abs(src_col - dest_col)) {
+              println("d5l")
+              // check diagonal
+              val (start_row, end_row, start_col, end_col) = if (src_row < dest_row && src_col < dest_col) {
+                (src_row + 1, dest_row, src_col + 1, dest_col)
+              } else if (src_row < dest_row && src_col > dest_col) {
+                (src_row + 1, dest_row, dest_col, src_col - 1)
+              } else if (src_row > dest_row && src_col < dest_col) {
+                (dest_row + 1, src_row, src_col + 1, dest_col)
+              } else {
+                (dest_row + 1, src_row, dest_col, src_col - 1)
+              }
+             val bool= (start_row until end_row).zip(start_col until end_col).exists {
+                case (r, c) => board(r)(c) != ""
+              }
+              println(bool)
+              if(bool) return (board,false,player)
+            }
+            if(board(dest_row)(dest_col)=="" || board(dest_row)(dest_col).charAt(1)=='1') {
+              board(src_row)(src_col) = ""
+              board(dest_row)(dest_col) = "Q2"
+              return (board, true, !player)
+            }
+            else {
+              return (board,false,player)
+            }
+          }
+      }
+    else if (board(src_row)(src_col) == "Q1") {
+      val row_col_bool = (1 to 7).flatMap { i =>
+        Seq((src_row + i, src_col), (src_row, src_col + i), (src_row - i, src_col), (src_row, src_col - i))
+      }.exists {
+        case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && (dest_row == r && dest_col == c)
+
+      }
+      val diagonal_bool = (1 to 7).flatMap { i =>
+        Seq((src_row + i, src_col + i), (src_row + i, src_col - i), (src_row - i, src_col + i), (src_row - i, src_col - i))
+      }.exists {
+        case (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && (dest_row == r && dest_col == c)
+      }
+      if (!(row_col_bool || diagonal_bool)) return (board, false, player)
+      else {
+        if (src_row == dest_row) {
+          // check row
+          val min_col = Math.min(src_col, dest_col)
+          val max_col = Math.max(src_col, dest_col)
+          val bool = (min_col + 1 until max_col).exists(c => board(src_row)(c) != "")
+          if (bool) return (board, false, player)
+        } else if (src_col == dest_col) {
+          // check column
+          val min_row = Math.min(src_row, dest_row)
+          val max_row = Math.max(src_row, dest_row)
+          val bool = (min_row + 1 until max_row).exists(r => board(r)(src_col) != "")
+          if (bool) return (board, false, player)
+        } else if (Math.abs(src_row - dest_row) == Math.abs(src_col - dest_col)) {
+          println("d5l")
+          // check diagonal
+          val (start_row, end_row, start_col, end_col) = if (src_row < dest_row && src_col < dest_col) {
+            (src_row + 1, dest_row, src_col + 1, dest_col)
+          } else if (src_row < dest_row && src_col > dest_col) {
+            (src_row + 1, dest_row, dest_col, src_col - 1)
+          } else if (src_row > dest_row && src_col < dest_col) {
+            (dest_row + 1, src_row, src_col + 1, dest_col)
+          } else {
+            (dest_row + 1, src_row, dest_col, src_col - 1)
+          }
+          val bool = (start_row until end_row).zip(start_col until end_col).exists {
+            case (r, c) => board(r)(c) != ""
+          }
+          println(bool)
+          if (bool) return (board, false, player)
+        }
+        if (board(dest_row)(dest_col) == "" || board(dest_row)(dest_col).charAt(1) == '2') {
+          board(src_row)(src_col) = ""
+          board(dest_row)(dest_col) = "Q1"
+          return (board, true, !player)
+        }
+        else {
+          return (board, false, player)
+        }
+      }
+    }
+
+    (board, true, !player)
+
+  }
+
+
+
 
 }
 
