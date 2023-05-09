@@ -9,7 +9,7 @@ object Main extends Exception {
     val Game = home()
     Game match {
       case "chess" => play(chess_Drawer, chess_Controller, initialize_board(Game))
-      case "checkers" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
+      case "checkers" => play(checkers_Drawer, checkers_Controller, initialize_board(Game))
       case "tic_tac_toe" => play(tic_tac_toe_Drawer, tic_tac_toe_Controller, initialize_board(Game))
       case "connect4" => play(connect4_Drawer, connect4_Controller, initialize_board(Game))
       case "suduko" => play(suduko_Drawer, suduko_Controller, initialize_board(Game))
@@ -52,10 +52,17 @@ object Main extends Exception {
       )
         myboard
       case "checkers" => val myboard = Array(
-        Array("", "", ""),
-        Array("", "", ""),
-        Array(" ", "", "")
-      )
+          Array("0", "2", "0", "2", "0", "2", "0", "2"),
+          Array("2", "0", "2", "0", "2", "0", "2", "0"),
+          Array("0", "2", "0", "2", "0", "2", "0", "2"),
+          Array("0", "0", "0", "0", "0", "0", "0", "0"),
+          Array("0", "0", "0", "0", "0", "0", "0", "0"),
+          Array("1", "0", "1", "0", "1", "0", "1", "0"),
+          Array("0", "1", "0", "1", "0", "1", "0", "1"),
+          Array("1", "0", "1", "0", "1", "0", "1", "0"),
+          Array("")
+        )
+
         myboard
       case "tic_tac_toe" => val myboard = Array(
         Array("", "", ""),
@@ -236,6 +243,7 @@ object Main extends Exception {
 
   def tic_tac_toe_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     val inputArray = input.split(" ")
+    if(inputArray.length!=2) return (board,false,player)
     val new_player = player
     val newBoard = board.clone()
     val (row, col) = (inputArray(0).toInt, inputArray(1).toInt)
@@ -339,6 +347,7 @@ cell.setHorizontalAlignment(SwingConstants.CENTER)
 
   def eightqueens_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
     val inputArray = input.split(" ")
+    if(inputArray.length!=2 && inputArray.length!=3)return (board,false,player)
     val row = inputArray(0).toInt
     val col = inputArray(1).toInt
     val remove=if(inputArray.length==3)inputArray(2).toInt else -1
@@ -469,6 +478,7 @@ cell.setHorizontalAlignment(SwingConstants.CENTER)
   }
   def chess_Controller(input: String, board: Array[Array[String]], player: Boolean):(Array[Array[String]], Boolean, Boolean)={
     val inputArray = input.split(" ")
+    if(inputArray.length!=4)return (board,false,player)
     val src_row=inputArray(0).toInt
     val src_col=inputArray(1).toInt
     val dest_row=inputArray(2).toInt
@@ -941,6 +951,226 @@ cell.setHorizontalAlignment(SwingConstants.CENTER)
 
   }
 
+  def checkers_Drawer(board: Array[Array[String]]): Unit = {
+    val win = java.awt.Window.getWindows
+    for (i <- 0 until win.length) {
+      win(i).dispose()
+    }
+    val frame = new JFrame("Checkers")
+    frame.setLayout(new BorderLayout())
+    val panel = new JPanel(new GridLayout(8, 8))
+    for (i <- 0 until 8; j <- 0 until 8) {
+      val cell = new JLabel(s"${i},${j}")
+      cell.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, Color.BLACK))
+      cell.setHorizontalAlignment(SwingConstants.CENTER)
+      cell.setOpaque(true)
+      cell.setForeground(Color.BLACK)
+
+      if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)) {
+        cell.setBackground(Color.WHITE)
+        cell.setOpaque(true)
+      }
+      else if ((i % 2 == 0 && j % 2 == 1) || (i % 2 == 1 && j % 2 == 0)) {
+        cell.setBackground(Color.GRAY)
+        cell.setOpaque(true)
+
+      }
+      val blackPiece = '\u25CF'
+      val whitePiece = '\u25CB'
+      val blackKing = '\u265B'
+      val whiteKing = '\u2654'
+      board(i)(j) match {
+        case "1" => cell.setText(blackPiece.toString)
+        cell.setForeground(Color.blue)//blue circle
+        case "2" => cell.setText(blackPiece.toString)
+        cell.setForeground(Color.RED)//red circle
+        case "3" => cell.setText("\u2666")
+          cell.setForeground(Color.blue)//blue diamond
+        case "4" => cell.setText("\u2666")
+          cell.setForeground(Color.RED)//red diamond
+        case "0" =>
+      }
+      //cell.setForeground(Color.RED)
+      cell.setPreferredSize(new Dimension(100, 100))
+      if (board(i)(j) == "0") {
+        cell.setFont(new Font(cell.getFont().getName(), Font.ITALIC, 18))
+      }
+      else {
+        cell.setFont(new Font(cell.getFont().getName(), Font.BOLD, 70))
+      }
+      panel.add(cell)
+    }
+
+    frame.add(panel, BorderLayout.CENTER)
+    frame.pack()
+    frame.setVisible(true)
+  }
+
+  def checkers_Controller(input: String, board: Array[Array[String]], player: Boolean): (Array[Array[String]], Boolean, Boolean) = {
+    val inputArray = input.split(" ")
+    val x1 = inputArray(0).toInt
+    val y1 = inputArray(1).toInt
+    val x2 = inputArray(2).toInt
+    val y2 = inputArray(3).toInt
+    val t = if (player) 1 else 0
+    val isvalid = (x1 < 0 || x1 > 7 || x2 < 0 || x2 > 7 || y1 < 0 || y1 > 7 || y2 < 0 || y2 > 7)
+    val jumps = board(8)(0)
+
+
+    val data = if (jumps.length > 0) {
+      var ajumps = jumps.split("-")
+      var jumpsf = jumps
+      var nt = t
+      val (valid, newboard, jumpsvf) = ajumps.zipWithIndex.foldLeft((false, board, jumps)) { case ((isValid, currentBoard, currentJumps), (jump, i)) =>
+        if (input == jump) {
+          if (jump == input) {
+            val jumpedX = (x1 + x2) / 2
+            val jumpedY = (y1 + y2) / 2
+            val newBoard = currentBoard.updated(x2, currentBoard(x2).updated(y2, currentBoard(x1)(y1)))
+              .updated(x1, currentBoard(x1).updated(y1, "0"))
+              .updated(jumpedX, currentBoard(jumpedX).updated(jumpedY, "0"))
+            val updatedBoard = if (newBoard(x2)(y2) == "1" && x2 == 0) {
+              newBoard.updated(x2, newBoard(x2).updated(y2, "3"))
+            } else if (newBoard(x2)(y2) == "2" && x2 == 7) {
+              newBoard.updated(x2, newBoard(x2).updated(y2, "4"))
+            } else {
+              newBoard
+            }
+            (true, updatedBoard, "")
+          } else {
+            (isValid, currentBoard, currentJumps)
+          }
+        } else {
+          (isValid, currentBoard, if (i == 0) jump else currentJumps + "-" + jump)
+        }
+      }
+      jumpsf = jumpsvf
+      valid match {
+        case true if x2 > 1 && newboard(x2)(y2) == "1" =>
+          if (y2 > 1 && newboard(x2 - 1)(y2 - 1).toInt % 2 == 0 && newboard(x2 - 2)(y2 - 2) == "0" && newboard(x2 - 1)(y2 - 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 - 2).toString + " "
+            jumpsf = jumpsf + (y2 - 2).toString + "-"
+          } else if (y2 < 6 && newboard(x2 - 1)(y2 + 1).toInt % 2 == 0 && newboard(x2 - 2)(y2 + 2) == "0" && newboard(x2 - 1)(y2 + 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 - 2).toString + " "
+            jumpsf = jumpsf + (y2 + 2).toString + "-"
+          }
+        case true if x2 < 6 && newboard(x2)(y2) == "2" =>
+          if (y2 > 1 && newboard(x2 + 1)(y2 - 1).toInt % 2 == 1 && newboard(x2 + 2)(y2 - 2) == "0" && newboard(x2 + 1)(y2 - 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 + 2).toString + " "
+            jumpsf = jumpsf + (y2 - 2).toString + "-"
+          } else if (y2 < 6 && newboard(x2 + 1)(y2 + 1).toInt % 2 == 1 && newboard(x2 + 2)(y2 + 2) == "0" && newboard(x2 + 1)(y2 + 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 + 2).toString + " "
+            jumpsf = jumpsf + (y2 + 2).toString + "-"
+          }
+        case true if newboard(x2)(y2) == "3" || newboard(x2)(y2) == "4" =>
+          if (x2 > 1 && y2 > 1 && newboard(x2 - 1)(y2 - 1).toInt % 2 != newboard(x2)(y2).toInt % 2 && newboard(x2 - 2)(y2 - 2) == "0" && newboard(x2 - 1)(y2 - 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 - 2).toString + " "
+            jumpsf = jumpsf + (y2 - 2).toString + "-"
+          } else if (x2 > 1 && y2 < 6 && newboard(x2 - 1)(y2 + 1).toInt % 2 != newboard(x2)(y2).toInt % 2 && newboard(x2 - 2)(y2 + 2) == "0" && newboard(x2 - 1)(y2 + 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 - 2).toString + " "
+            jumpsf = jumpsf + (y2 + 2).toString + "-"
+          } else if (x2 < 6 && y2 > 1 && newboard(x2 + 1)(y2 - 1).toInt % 2 != newboard(x2)(y2).toInt % 2 && newboard(x2 + 2)(y2 - 2) == "0" && newboard(x2 + 1)(y2 - 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 + 2).toString + " "
+            jumpsf = jumpsf + (y2 - 2).toString + "-"
+          } else if (x2 < 6 && y2 < 6 && newboard(x2 + 1)(y2 + 1).toInt % 2 != newboard(x2)(y2).toInt % 2 && newboard(x2 + 2)(y2 + 2) == "0" && newboard(x2 + 1)(y2 + 1) != "0") {
+            jumpsf = jumpsf + (x2).toString + " "
+            jumpsf = jumpsf + (y2).toString + " "
+            jumpsf = jumpsf + (x2 + 2).toString + " "
+            jumpsf = jumpsf + (y2 + 2).toString + "-"
+          }
+        case _ =>
+      }
+      if (jumpsf.length > 0 && valid) {
+        jumpsf = jumpsf.dropRight(1)
+      } else if (valid) {
+        nt = (nt + 1) % 2
+      }
+      (newboard, jumpsf, valid, nt)
+    }
+    else {
+      var valid = false
+      var jumpsf = jumps
+      var newboard = board
+      var nt = t
+      (x1, y1, x2, y2, newboard) match {
+        case (a, b, c, d, e) if a == c + 1 && (b == d + 1 || b == d - 1) && (e(a)(b) != "2" && e(a)(b) != "0") && e(c)(d) == "0" =>
+          if (e(a)(b).toInt % 2 == t) {
+            e(c)(d) = e(a)(b)
+            e(a)(b) = "0"
+            nt = (nt + 1) % 2
+            if (e(c)(d) == "1" && c == 0) {
+              e(c)(d) = "3"
+            }
+            valid = true
+          }
+        case (a, b, c, d, e) if a == c - 1 && (b == d + 1 || b == d - 1) && (e(a)(b) != "1" && e(a)(b) != "0") && e(c)(d) == "0" =>
+          if (e(a)(b).toInt % 2 == t) {
+            e(c)(d) = e(a)(b)
+            e(a)(b) = "0"
+            nt = (nt + 1) % 2
+            if (e(c)(d) == "2" && c == 7) {
+              e(c)(d) = "4"
+            }
+            valid = true
+          }
+        case _ =>
+      }
+      (newboard, jumpsf, valid, nt)
+    }
+    val newjumbs = if (data._3 && data._2 == "") {
+      val newboard = data._1
+      val nt = data._4
+      var jumpsf = data._2
+      jumpsf = (1 until 7).flatMap { i =>
+        (1 until 7).flatMap { j =>
+          if (newboard(i)(j).toInt % 2 == (nt + 1) % 2 && newboard(i)(j) != "0") {
+            Seq(
+              (i - 1, j - 1, i + 1, j + 1),
+              (i - 1, j + 1, i + 1, j - 1),
+              (i + 1, j + 1, i - 1, j - 1),
+              (i + 1, j - 1, i - 1, j + 1)
+            ).flatMap { case (x1, y1, x2, y2) =>
+              if (newboard(x1)(y1) != "0" && newboard(x2)(y2) == "0" && newboard(i)(j).toInt % 2 != newboard(x1)(y1).toInt % 2) {
+                if (newboard(x2)(y2) != "1") {
+                  Seq((x1, y1, x2, y2))
+                } else Seq.empty
+              } else Seq.empty
+            }
+          } else Seq.empty
+        }
+      }.map { case (x1, y1, x2, y2) =>
+        s"$x1 $y1 $x2 $y2-"
+      }.mkString("")
+      jumpsf = jumpsf.dropRight(1)
+      jumpsf
+    }
+    else {
+      data._2
+    }
+    println(newjumbs)
+    val turn = if (data._4 == 0) false else true
+    val databoard = {
+      var b = data._1
+      b(8)(0) = newjumbs
+      b
+    }
+    (databoard, data._3, turn)
+
+  }
 
 
 
